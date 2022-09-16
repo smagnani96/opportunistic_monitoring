@@ -2,11 +2,12 @@ import argparse
 import json
 import os
 import pwd
-from bcc import BPF
 
+from bcc import BPF
 from dechainy.controller import Controller
 
 from . import MapType
+
 
 def create_dir(name):
     try:

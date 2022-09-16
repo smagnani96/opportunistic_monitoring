@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import ctypes as ct
+import time
 ###############################################################
 # NB: Need the Docker image to be compiled with "ml" argument #
 ###############################################################
 from dataclasses import dataclass
 from enum import Enum
-import time
-import ctypes as ct
 
 from dechainy.plugins import Probe
+
 
 class MapType(Enum):
     HASH = "HASH"
@@ -35,7 +36,8 @@ class Erase(Probe):
 
     def __post_init__(self):
         self.ingress.required = True
-        self.ingress.cflags = ["-D{}=1".format(self.map_type.value), "-DN_ENTRIES={}".format(self.n_entries)]
+        self.ingress.cflags = [
+            "-D{}=1".format(self.map_type.value), "-DN_ENTRIES={}".format(self.n_entries)]
         super().__post_init__(path=__file__)
 
     def _populate(self):
@@ -55,21 +57,23 @@ class Erase(Probe):
         if self.map_type.value == MapType.QUEUE.value:
             return 0
         else:
-            _, keys, values = self["INGRESS"]["TABLE"]._alloc_keys_values(alloc_k=True, alloc_v=True, count=self.n_entries)
+            _, keys, values = self["INGRESS"]["TABLE"]._alloc_keys_values(
+                alloc_k=True, alloc_v=True, count=self.n_entries)
             self["INGRESS"]["TABLE"].items_update_batch(keys, values)
         return time.time_ns() - t
 
     def _batch_erase(self):
         t = time.time_ns()
         if self.map_type.value == "ARRAY":
-            _, keys, values = self["INGRESS"]["TABLE"]._alloc_keys_values(alloc_k=True, alloc_v=True, count=self.n_entries)
+            _, keys, values = self["INGRESS"]["TABLE"]._alloc_keys_values(
+                alloc_k=True, alloc_v=True, count=self.n_entries)
             self["INGRESS"]["TABLE"].items_update_batch(keys, values)
         elif self.map_type.value == "HASH":
             self["INGRESS"]["TABLE"].items_delete_batch()
         elif self.map_type.value == "QUEUE":
             return 0
         return time.time_ns() - t
-    
+
     def _normal_erase(self):
         t = time.time_ns()
         if self.map_type.value == MapType.QUEUE.value:
@@ -86,5 +90,3 @@ class Erase(Probe):
         t3 = self._populate_batch()
         t4 = self._batch_erase()
         return t1, t2, t3, t4
-
-

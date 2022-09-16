@@ -3,11 +3,11 @@ import json
 import os
 import pwd
 import subprocess
-from bcc import XDPFlags, BPF
 
+from bcc import BPF, XDPFlags
 from dechainy.controller import Controller
 
-from . import Adaptiveness, AdaptivenessType
+from . import AdaptivenessType
 
 
 def create_dir(name):
@@ -48,15 +48,18 @@ if __name__ == '__main__':
             if at.value != AdaptivenessType.TRADITIONAL.value:
                 continue
             results[mode][at.value] = {}
-            for i in [1,5,10,50,100]:
+            for i in [1, 5, 10, 50, 100]:
                 vals = []
                 for _ in range(args["ntimes"]):
                     ctr.create_probe(
-                        __package__, "probe", interface=args["interface"], mode=mode, flags=XDPFlags.DRV_MODE, nfeatures=i, adaptiveness_type=at)
+                        __package__, "probe", interface=args["interface"],
+                        mode=mode, flags=XDPFlags.DRV_MODE, nfeatures=i, adaptiveness_type=at)
                     p = ctr.get_probe(__package__, "probe")
                     print(f"{at} {i} ... ", end="", flush=True)
                     subprocess.check_call(
-                        f'ssh -i /home/cube2/.ssh/id_rsa1 {args["ssh_login"]} "cd accio/MoonGen && sudo ./build/MoonGen moongen.lua 1 --core 7 --timeout {args["timeout"]} --ipsnum 256 --portsnum 97"',
+                        f'ssh -i /home/{os.getlogin()}/.ssh/id_rsa1 {args["ssh_login"]} "cd MoonGen && \
+                            sudo ./build/MoonGen moongen.lua 1 --core 7 --timeout {args["timeout"]} \
+                                --ipsnum 256 --portsnum 97"',
                         shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                     vals.append(p.retrieve())
                     del p

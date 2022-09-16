@@ -1,13 +1,14 @@
+import ctypes as ct
 from dataclasses import dataclass
 from typing import ClassVar, OrderedDict
+
 from dechainy.plugins import Probe
-import ctypes as ct
 
 
 @dataclass
 class Nprobe(Probe):
     nfeatures: int = 0
-    
+
     NPROBE_FEATURES: ClassVar[OrderedDict] = OrderedDict([
         ("input_snmp", ct.c_uint32),
         ("output_snmp", ct.c_uint32),
@@ -28,8 +29,9 @@ class Nprobe(Probe):
 
     def __post_init__(self):
         self.ingress.required = True
-        self.ingress.cflags = ["-D{}=1".format(x.upper()) for x in list(Nprobe.NPROBE_FEATURES.keys())[:self.nfeatures]]
+        self.ingress.cflags = [
+            "-D{}=1".format(x.upper()) for x in list(Nprobe.NPROBE_FEATURES.keys())[:self.nfeatures]]
         super().__post_init__(path=__file__)
-    
+
     def retrieve(self):
         return self["INGRESS"]["PACKETS"][0].value
