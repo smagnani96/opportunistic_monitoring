@@ -41,7 +41,7 @@ Finally, for the tests that require network traffic to be sent, the client requi
 │   ├── __init__.py
 │   └── __main__.py
 ├── moongen.lua
-├── plotter.py
+├── plotter.ipynb
 └── set_irq_affinity.sh
 ```
 
@@ -50,7 +50,7 @@ Finally, for the tests that require network traffic to be sent, the client requi
 * **nprobe**: Test case, containing an eBPF probe for measuring the impact of extracting the exact information extracted from nProbe within eBPF, in terms of number of processed packets and memory used
 * **swap**: Test case, containing an eBPF probe for measuring the impact of requesting a snapshot-access to the eBPF maps, both in terms of compilation time and performance degradation while swapping in-out the underlying eBPF programs.
 * **moongen.lua**: used by the client to generate traffic at line rate using MoonGen
-* **plotter.py**: a Python script for plotting the results of the tests leveraging matplotlib and a fancy style for IEEE publications
+* **plotter.ipynb**: a Python notebook for plotting the results of the tests leveraging matplotlib
 * **set_irq_affinity.sh**: a Bash script for setting the number of CPU used for handling incoming network traffic to 1 for a specific interface
 
 ## Assumptions
